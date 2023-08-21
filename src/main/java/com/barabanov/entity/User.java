@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
@@ -18,16 +17,13 @@ import javax.persistence.*;
 @Table(name = "users", schema = "public")
 public class User
 {
-    @Id
+    @EmbeddedId
+    @AttributeOverride(name = "birthDate", column = @Column(name = "birth_date"))
+    private PersonalInfo personalInfo;
+
+    @Column(unique = true)
     private String username;
 
-    private String firstname;
-
-    private String lastname;
-
-    @Column(name = "birth_date")
-    //@Convert(converter = BirthdayConverter.class)
-    private Birthday birthDate;
 
     @Enumerated(EnumType.STRING)
     private Role role;

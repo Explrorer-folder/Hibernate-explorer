@@ -1,6 +1,7 @@
 package com.barabanov;
 
 import com.barabanov.entity.*;
+import com.barabanov.util.HibernateTestUtil;
 import com.barabanov.util.HibernateUtil;
 import lombok.Cleanup;
 import org.hibernate.LazyInitializationException;
@@ -25,6 +26,25 @@ import static java.util.stream.Collectors.joining;
 
 class HibernateRunnerTest
 {
+
+    @Test
+    void checkH2()
+    {
+        try (var sessionFactory = HibernateTestUtil.buildSessionFactory();
+             var session = sessionFactory.openSession())
+        {
+            session.beginTransaction();
+
+            Company company = Company.builder()
+                    .name("Noctua")
+                    .build();
+
+            session.save(company);
+
+            session.getTransaction().commit();
+        }
+    }
+
 
     @Test
     void localeInfo()

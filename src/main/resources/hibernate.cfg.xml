@@ -13,6 +13,10 @@
     <property name="format_sql">true</property>
 
     <mapping class="com.barabanov.entity.User"/>
+    <mapping class="com.barabanov.entity.Company"/>
+    <mapping class="com.barabanov.entity.Profile"/>
+    <mapping class="com.barabanov.entity.Chat"/>
+    <mapping class="com.barabanov.entity.UserChat"/>
     <!-- DB schema will be updated if needed -->
     <!-- <property name="hibernate.hbm2ddl.auto">update</property> -->
   </session-factory>

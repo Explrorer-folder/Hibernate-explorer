@@ -3,17 +3,16 @@ package com.barabanov.entity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString(exclude = {"user", "chat"})
-@EqualsAndHashCode(exclude = {"user", "chat"})
+@EqualsAndHashCode(exclude = {"user", "chat"}, callSuper = true)
 @Entity
 @Table(name = "users_chat")
-public class UserChat
+public class UserChat extends AuditableEntity<Long>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +24,6 @@ public class UserChat
     @ManyToOne(optional = false)
     @JoinColumn(name = "chat_id")
     private Chat chat;
-
-    private Instant createdAt;
-
-    private String createdBy;
 
 
     public void setUser(User user)

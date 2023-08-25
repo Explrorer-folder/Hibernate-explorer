@@ -41,6 +41,28 @@ class HibernateRunnerTest
 
             session.save(company);
 
+            Programmer programmer = Programmer.builder()
+                    .username("ivan@Gmail.com")
+                    .language(Language.JAVA)
+                    .company(company)
+                    .build();
+
+            Manager manager = Manager.builder()
+                    .username("sveta@Gmail.com")
+                    .projectName("Starter")
+                    .company(company)
+                    .build();
+
+            session.save(programmer);
+            session.save(manager);
+            session.flush();
+
+            session.clear();
+
+            Programmer programmer1 = session.get(Programmer.class, 1);
+            System.out.println();
+            User user = session.get(User.class, 1);
+
             session.getTransaction().commit();
         }
     }
@@ -75,6 +97,7 @@ class HibernateRunnerTest
         User user = session.get(User.class, 12);
         var chat = session.get(Chat.class, 4L);
 
+/*
         var userChat = UserChat.builder()
                 .createdAt(Instant.now())
                 .createdBy(user.getUsername())
@@ -83,6 +106,7 @@ class HibernateRunnerTest
         userChat.setUser(user);
 
         session.save(userChat);
+*/
 
         session.getTransaction().commit();
     }
@@ -117,10 +141,7 @@ class HibernateRunnerTest
         @Cleanup var session = sessionFactory.openSession();
         session.beginTransaction();
 
-        var user = User.builder()
-                .username("irina38@mail.yandex")
-                .company(session.get(Company.class, 2))
-                .build();
+        User user = null;
 
         Profile profile = Profile.builder()
                 .language("ru")
@@ -195,9 +216,7 @@ class HibernateRunnerTest
                 .name("Facebook")
                 .build();
 
-        User user = User.builder()
-                .username("sveta@email.com")
-                .build();
+        User user = null;
         // а тут вместо
 //        user.setCompany(company);
 //        company.getUsers().add(user);

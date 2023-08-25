@@ -12,11 +12,11 @@ import java.util.List;
 @ToString(exclude = {"company", "profile", "userChats"}) // чтобы посмотреть на Lazy инициализацию и не было циклов
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
-@Table(name = "users", schema = "public")
+@Table(name = "users")
 @EqualsAndHashCode(of = "username")
-public class User implements Comparable<User>
+@Inheritance(strategy = InheritanceType.JOINED)
+public class User implements Comparable<User>, BaseEntity<Integer>
 {
 
     @Id
@@ -43,12 +43,10 @@ public class User implements Comparable<User>
 
     @OneToOne(mappedBy = "user",
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            optional = false)
+            fetch = FetchType.LAZY)
     private Profile profile;
 
 
-    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<UserChat> userChats = new LinkedList<>();
 

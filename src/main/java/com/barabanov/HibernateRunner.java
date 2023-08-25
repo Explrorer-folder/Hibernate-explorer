@@ -24,15 +24,7 @@ public class HibernateRunner
                 .name("Amazon")
                 .build();
 
-        User user = User.builder()
-                .personalInfo(PersonalInfo.builder()
-                        .firstname("Ivan")
-                        .lastname("ne Pigeon")
-                        .birthDate(new Birthday(LocalDate.of(2002, 1, 2)))
-                        .build())
-                .username("petonheg0@gmail.com")
-                .company(company)
-                .build();
+        User user = null;
 
         try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory())
         {

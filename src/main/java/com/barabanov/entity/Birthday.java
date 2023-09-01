@@ -1,11 +1,15 @@
 package com.barabanov.entity;
 
+import lombok.Value;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-
-public record Birthday(LocalDate birthDate)
+@Value
+public class Birthday
 {
+    LocalDate birthDate;
+
 
     public long getAge()
     {

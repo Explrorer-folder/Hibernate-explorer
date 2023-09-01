@@ -8,8 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 
+@NamedQuery(name = "findUserByName", query = "select u from User u " +
+        "where u.personalInfo.firstname = :firstname and u.company.name = :companyname" +
+        " order by u.personalInfo.lastname desc")
 @Data
-@ToString(exclude = {"company", "profile", "userChats"}) // чтобы посмотреть на Lazy инициализацию и не было циклов
+@Builder
+@ToString(exclude = {"company", "profile", "userChats", "payments"}) // чтобы посмотреть на Lazy инициализацию и не было циклов
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -46,13 +50,21 @@ public class User implements Comparable<User>, BaseEntity<Integer>
             fetch = FetchType.LAZY)
     private Profile profile;
 
-
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<UserChat> userChats = new LinkedList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "receiver")
+    private List<Payment> payments = new LinkedList<>();
 
 
     @Override
     public int compareTo(User o) {
         return username.compareTo(o.username);
+    }
+
+    public String fullName() {
+        return getPersonalInfo().getFirstname() + " " + getPersonalInfo().getLastname();
     }
 }

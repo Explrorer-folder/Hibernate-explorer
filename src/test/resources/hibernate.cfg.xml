@@ -16,8 +16,7 @@
     <mapping class="com.barabanov.entity.Profile"/>
     <mapping class="com.barabanov.entity.Chat"/>
     <mapping class="com.barabanov.entity.UserChat"/>
-    <mapping class="com.barabanov.entity.Programmer"/>
-    <mapping class="com.barabanov.entity.Manager"/>
+    <mapping class="com.barabanov.entity.Payment"/>
 
   </session-factory>
 </hibernate-configuration>

@@ -5,6 +5,9 @@ import com.barabanov.util.HibernateTestUtil;
 import com.barabanov.util.HibernateUtil;
 import lombok.Cleanup;
 import org.hibernate.LazyInitializationException;
+import org.hibernate.Session;
+import org.hibernate.jpa.QueryHints;
+import org.hibernate.query.Query;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +22,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.joining;
@@ -26,6 +30,30 @@ import static java.util.stream.Collectors.joining;
 
 class HibernateRunnerTest
 {
+
+    @Test
+    void checkHql()
+    {
+        try (var sessionFactory = HibernateTestUtil.buildSessionFactory();
+             var session = sessionFactory.openSession())
+        {
+            session.beginTransaction();
+            // HQL/JPQL
+//            select u.* from users u where u.firstname = Ivan
+            var list = session.createNamedQuery("findUserByName", User.class)
+                    .setParameter("firstname", "Oksana")
+                    .setParameter("companyname", "Google")
+                    .setHint(QueryHints.HINT_FETCH_SIZE, 50)
+                    .list();
+
+            session.createQuery("update User u set u.role = 'ADMIN'")
+                            .executeUpdate();
+            session.getTransaction().commit();
+
+            session.createNativeQuery("select u.* from users u where u.firstname = 'Ivan'", User.class);
+        }
+    }
+
 
     @Test
     void checkH2()
@@ -40,6 +68,7 @@ class HibernateRunnerTest
                     .build();
 
             session.save(company);
+/*
 
             Programmer programmer = Programmer.builder()
                     .username("ivan@Gmail.com")
@@ -62,6 +91,7 @@ class HibernateRunnerTest
             Programmer programmer1 = session.get(Programmer.class, 1);
             System.out.println();
             User user = session.get(User.class, 1);
+*/
 
             session.getTransaction().commit();
         }
@@ -264,14 +294,15 @@ class HibernateRunnerTest
     {
         //таким образом формируются запросы. Однако также используются методы, задающие соответствие стратегий именования,
         //Конвертеры для преобразования типов в java.sql, Аннотации указывающие используемый столбец столбцы и т.д.
-        Person person = Person.builder()
+        User person = null;
+        /*User.builder()
                 .username("emel@gmail.com")
                 .firstname("Oksana")
                 .lastname("Emelianova")
                 .birthDate(new Birthday(LocalDate.of(2002, 6, 19)))
                 .role(Role.USER)
                 .build();
-
+*/
         String sqlInsert = """
                     INSERT
                     INTO

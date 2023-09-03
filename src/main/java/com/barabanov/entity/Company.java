@@ -1,6 +1,7 @@
 package com.barabanov.entity;
 
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SortComparator;
 import org.hibernate.annotations.SortNatural;
 
@@ -16,6 +17,7 @@ import java.util.*;
 @Builder
 @ToString(exclude = "users")            //чтобы не было цикла
 @EqualsAndHashCode(of = "name")
+@BatchSize(size = 3)
 public class Company
 {
 

@@ -153,29 +153,29 @@ public class UserDao
                         "order by u.personalInfo.firstname, p.amount", Payment.class)
                 .setParameter("companyName", companyName)
                 .list();*/
-/*
-        var cb = session.getCriteriaBuilder();
+        /*var cb = session.getCriteriaBuilder();
         var criteria = cb.createQuery(Payment.class);
         var payment = criteria.from(Payment.class);
-        var user = payment.join(Payment_.receiver);
-        var company = user.join(User_.COMPANY);
+        var user = payment.join("receiver");
+        payment.fetch("receiver");
+
+        var company = user.join("company");
 
         criteria.select(payment)
-                .where(cb.equal(company.get(Company_.NAME), companyName))
+                .where(cb.equal(company.get("name"), companyName))
                 .orderBy(
-                        cb.asc(user.get(User_.personalInfo).get(PersonalInfo_.FIRSTNAME)),
-                        cb.asc(payment.get(Payment_.AMOUNT))
+                        cb.asc(user.get("personalInfo").get("firstname")),
+                        cb.asc(payment.get("amount"))
                 );
 
         return session.createQuery(criteria)
-                .list();
-        */
+                .list();*/
 
         return new JPAQuery<Payment>(session)
                 .select(payment)
-                .from(company)
-                .join(company.users, user)
-                .join(user.payments, payment)
+                .from(payment)
+                .join(payment.receiver, user).fetchJoin()
+                .join(user.company, company)
                 .where(company.name.eq(companyName))
                 .orderBy(
                         user.personalInfo.firstname.asc(),

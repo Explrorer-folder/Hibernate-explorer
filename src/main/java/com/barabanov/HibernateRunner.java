@@ -1,47 +1,58 @@
 package com.barabanov;
 
+import com.barabanov.entity.Payment;
+import com.barabanov.entity.Profile;
 import com.barabanov.entity.User;
 import com.barabanov.entity.UserChat;
 import com.barabanov.util.HibernateUtil;
+import com.barabanov.util.TestDataImporter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.graph.GraphSemantic;
+import org.hibernate.jdbc.Work;
 
+import javax.persistence.LockModeType;
+import javax.transaction.Transactional;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 @Slf4j
 public class HibernateRunner
 {
 
+    @Transactional
     public static void main(String[] args)
     {
         try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
             Session session = sessionFactory.openSession())
         {
-            session.beginTransaction();
-//            session.enableFetchProfile("withCompanyAndPayment");
+            TestDataImporter.importData(sessionFactory);
+            session.doWork(connection -> connection.setAutoCommit(false));
 
-            var userGraph = session.createEntityGraph(User.class);
-            userGraph.addAttributeNodes("company", "userChats");
-            var userChatSubGraph = userGraph.addSubGraph("userChats", UserChat.class);
-            userChatSubGraph.addAttributeNode("chat");
+//            session.beginTransaction();
 
-            Map<String, Object> properties = Map.of(
-                    GraphSemantic.LOAD.getJpaHintName(), userGraph
-            );
-            var user = session.find(User.class, 1, properties);
-            System.out.println(user.getCompany().getName());
-            System.out.println(user.getUserChats().size());
+            var profile = Profile.builder()
+                    .user(session.find(User.class, 1))
+                    .language("ru")
+                    .street("Kolasa 28")
+                    .build();
 
-            var users = session.createQuery("select u from User u", User.class)
-                    .setHint(GraphSemantic.LOAD.getJpaHintName(), userGraph)
+            session.save(profile);
+
+            var payments = session.createQuery("select p from Payment p", Payment.class)
+//                    .setLockMode(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+//                    .setTimeout(5000)
+//                    .setReadOnly(true)
                     .list();
 
-            users.forEach(it -> System.out.println(it.getUserChats().size()));
-            users.forEach(it -> System.out.println(it.getCompany().getName()));
-            session.getTransaction().commit();
+            var payment = session.find(Payment.class, 1L);
+            payment.setAmount(payment.getAmount() + 10);
+            session.save(payment);
         }
     }
 }

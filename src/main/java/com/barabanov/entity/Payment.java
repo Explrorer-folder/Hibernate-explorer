@@ -1,24 +1,19 @@
 package com.barabanov.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.OptimisticLockType;
-import org.hibernate.annotations.OptimisticLocking;
+import lombok.*;
 
 import javax.persistence.*;
 
 
 @Data
+@EqualsAndHashCode(exclude = "receiver", callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
 //@OptimisticLocking(type = OptimisticLockType.DIRTY)
 //@DynamicUpdate
-public class Payment
+public class Payment extends AuditableEntity<Long>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +27,5 @@ public class Payment
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
     private User receiver;
+
 }

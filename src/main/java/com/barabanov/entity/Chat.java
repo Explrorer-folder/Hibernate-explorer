@@ -25,4 +25,8 @@ public class Chat
     @Builder.Default
     @OneToMany(mappedBy = "chat")
     private List<UserChat> userChats = new LinkedList<>();
+
+    @Builder.Default
+    private Integer count = 0;
+
 }

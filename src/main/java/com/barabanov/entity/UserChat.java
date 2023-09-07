@@ -1,5 +1,6 @@
 package com.barabanov.entity;
 
+import com.barabanov.listner.UserChatListener;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @EqualsAndHashCode(exclude = {"user", "chat"}, callSuper = true)
 @Entity
 @Table(name = "users_chat")
+@EntityListeners(UserChatListener.class)
 public class UserChat extends AuditableEntity<Long>
 {
     @Id
@@ -37,4 +39,5 @@ public class UserChat extends AuditableEntity<Long>
         this.chat = chat;
         this.chat.getUserChats().add(this);
     }
+
 }

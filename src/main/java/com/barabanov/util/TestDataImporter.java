@@ -1,6 +1,5 @@
 package com.barabanov.util;
 
-
 import com.barabanov.entity.*;
 import lombok.Cleanup;
 import lombok.experimental.UtilityClass;
@@ -16,6 +15,7 @@ public class TestDataImporter {
 
     public void importData(SessionFactory sessionFactory) {
         @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
 
         Company microsoft = saveCompany(session, "Microsoft");
         Company apple = saveCompany(session, "Apple");
@@ -51,18 +51,18 @@ public class TestDataImporter {
         savePayment(session, dianeGreene, 300);
         savePayment(session, dianeGreene, 300);
 
-        Chat barab = saveChat(session, "barab");
+        Chat dmdev = saveChat(session, "dmdev");
         Chat java = saveChat(session, "java");
         Chat youtubeMembers = saveChat(session, "youtube-members");
 
-        addToChat(session, barab, billGates, steveJobs, sergeyBrin);
+        addToChat(session, dmdev, billGates, steveJobs, sergeyBrin);
         addToChat(session, java, billGates, steveJobs, timCook, dianeGreene);
         addToChat(session, youtubeMembers, billGates, steveJobs, timCook, dianeGreene);
+
+        session.getTransaction().commit();
     }
 
-
-    private void addToChat(Session session, Chat chat, User... users)
-    {
+    private void addToChat(Session session, Chat chat, User... users) {
         Arrays.stream(users)
                 .map(user -> UserChat.builder()
                         .chat(chat)
@@ -71,9 +71,7 @@ public class TestDataImporter {
                 .forEach(session::save);
     }
 
-
-    private Chat saveChat(Session session, String chatName)
-    {
+    private Chat saveChat(Session session, String chatName) {
         Chat chat = Chat.builder()
                 .name(chatName)
                 .build();
@@ -81,7 +79,6 @@ public class TestDataImporter {
 
         return chat;
     }
-
 
     private Company saveCompany(Session session, String name) {
         Company company = Company.builder()
@@ -92,13 +89,11 @@ public class TestDataImporter {
         return company;
     }
 
-
     private User saveUser(Session session,
                           String firstName,
                           String lastName,
                           LocalDate birthday,
-                          Company company)
-    {
+                          Company company) {
         User user = User.builder()
                 .username(firstName + lastName)
                 .personalInfo(PersonalInfo.builder()
@@ -113,9 +108,7 @@ public class TestDataImporter {
         return user;
     }
 
-
-    private void savePayment(Session session, User user, Integer amount)
-    {
+    private void savePayment(Session session, User user, Integer amount) {
         Payment payment = Payment.builder()
                 .receiver(user)
                 .amount(amount)

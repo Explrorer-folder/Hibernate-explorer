@@ -2,6 +2,7 @@ package com.barabanov.util;
 
 import com.barabanov.converter.BirthdayConverter;
 import com.barabanov.entity.Audit;
+import com.barabanov.entity.Revision;
 import com.barabanov.interceptor.GlobalInterceptor;
 import com.barabanov.listner.AuditTableListener;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
@@ -23,7 +24,7 @@ public class HibernateUtil
         configuration.configure();
 
         var sessionFactory = configuration.buildSessionFactory();
-        registerListeners(sessionFactory);
+//        registerListeners(sessionFactory);
 
         return sessionFactory;
     }
@@ -44,6 +45,7 @@ public class HibernateUtil
         Configuration configuration = new Configuration();
         //configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(Audit.class);
+        configuration.addAnnotatedClass(Revision.class);
         configuration.setPhysicalNamingStrategy(new CamelCaseToUnderscoresNamingStrategy());
         configuration.addAttributeConverter(new BirthdayConverter(), true);
         configuration.registerTypeOverride(new JsonBinaryType());

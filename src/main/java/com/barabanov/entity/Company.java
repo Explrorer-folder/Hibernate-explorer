@@ -4,6 +4,8 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SortComparator;
 import org.hibernate.annotations.SortNatural;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.util.*;
@@ -18,6 +20,7 @@ import java.util.*;
 @ToString(exclude = "users")            //чтобы не было цикла
 @EqualsAndHashCode(of = "name")
 @BatchSize(size = 3)
+@Audited
 public class Company
 {
 
@@ -29,6 +32,7 @@ public class Company
     private String name;
 
 
+    @NotAudited
     @Builder.Default
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     @MapKey(name = "username")
@@ -36,6 +40,7 @@ public class Company
     Map<String, User> users = new TreeMap<>();
 
 
+    @NotAudited
     @Builder.Default
     @ElementCollection
     @CollectionTable(name = "company_locale", // без этой аннотации будет искать таблицу с именем Company_locales

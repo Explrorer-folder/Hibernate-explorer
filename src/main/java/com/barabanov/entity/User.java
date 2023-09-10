@@ -5,6 +5,8 @@ import lombok.*;
 
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.FetchProfile;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -38,6 +40,7 @@ import java.util.Set;
 @Table(name = "users")
 @EqualsAndHashCode(of = "username")
 @Inheritance(strategy = InheritanceType.JOINED)
+@Audited
 public class User implements Comparable<User>, BaseEntity<Integer>
 {
 
@@ -69,10 +72,12 @@ public class User implements Comparable<User>, BaseEntity<Integer>
 //            fetch = FetchType.LAZY)
 //    private Profile profile;
 
+    @NotAudited
     @Builder.Default
     @OneToMany(mappedBy = "user")
     private Set<UserChat> userChats = new HashSet<>();
 
+    @NotAudited
     @Builder.Default
 //    @BatchSize(size = 3)
 //    @Fetch(FetchMode.SUBSELECT)

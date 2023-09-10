@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users_chat")
 @EntityListeners(UserChatListener.class)
-public class UserChat extends AuditableEntity<Long>
+public class UserChat extends AuditableDateEntity<Long>
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -16,7 +16,7 @@ import java.time.Instant;
 @Setter
 @EqualsAndHashCode
 @EntityListeners(AuditDatesListener.class)
-public abstract class AuditableEntity<T extends Serializable> implements BaseEntity<T>
+public abstract class AuditableDateEntity<T extends Serializable> implements BaseEntity<T>
 {
 
     private Instant createdAt;

@@ -3,10 +3,12 @@ package com.barabanov.entity;
 
 import lombok.*;
 
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.FetchProfile;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
+import org.hibernate.annotations.Cache;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -41,6 +43,7 @@ import java.util.Set;
 @EqualsAndHashCode(of = "username")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Audited
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "Users")
 public class User implements Comparable<User>, BaseEntity<Integer>
 {
 
@@ -75,6 +78,7 @@ public class User implements Comparable<User>, BaseEntity<Integer>
     @NotAudited
     @Builder.Default
     @OneToMany(mappedBy = "user")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<UserChat> userChats = new HashSet<>();
 
     @NotAudited

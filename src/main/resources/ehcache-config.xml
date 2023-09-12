@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache:config
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns:ehcache='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.1.xsd">
+
+    <ehcache:cache alias="Users" uses-template="simple"/>       <!--как раз наш region-->
+    <ehcache:cache alias="Companies" uses-template="simple"/>
+
+    <ehcache:cache-template name="simple"> <!--template удобно создавать т.к. разные region часто могут иметь одинаковые настройки-->
+        <ehcache:expiry>
+            <ehcache:ttl>10</ehcache:ttl> <!--time to live, c. Через это время сущность сама удалится из кеша-->
+        </ehcache:expiry>
+        <ehcache:heap>1000</ehcache:heap> <!--можем хранить до 1000 сущностей-->
+    </ehcache:cache-template>
+
+</ehcache:config>

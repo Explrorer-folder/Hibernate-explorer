@@ -1,13 +1,29 @@
 package com.barabanov;
 
-import com.barabanov.entity.*;
+import com.barabanov.dao.CompanyRepository;
+import com.barabanov.dao.PaymentRepository;
+import com.barabanov.dao.UserRepository;
+import com.barabanov.dto.UserCreateDTO;
+import com.barabanov.entity.PersonalInfo;
+import com.barabanov.entity.Role;
+import com.barabanov.interceptor.TransactionInterceptor;
+import com.barabanov.mapper.CompanyReadMapper;
+import com.barabanov.mapper.UserCreateMapper;
+import com.barabanov.mapper.UserReadMapper;
+import com.barabanov.service.UserService;
 import com.barabanov.util.HibernateUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatcher;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.jpa.QueryHints;
 
 import javax.transaction.Transactional;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
+import java.time.LocalDate;
 
 
 @Slf4j
@@ -15,46 +31,53 @@ public class HibernateRunner
 {
 
     @Transactional
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory())
         {
-            User user = null;
-            try (Session session = sessionFactory.openSession())
-            {
-                session.beginTransaction();
+            // прокси объект над сессией, чтобы не получать CurrentSession() через SessionFactory в методах Repository,
+            // а просто при обращении к зависимости EntityManager внутри Repository.
+            var proxySession = (Session) Proxy.newProxyInstance(SessionFactory.class.getClassLoader(), new Class[]{Session.class},
+                    (proxy, method, args1) -> method.invoke(sessionFactory.getCurrentSession(), args1));
+//            proxySession.beginTransaction();
 
-                user = session.find(User.class, 1);
-                user.getCompany().getName();
-                user.getUserChats().size();
-                var user1 = session.find(User.class, 1);
+            var companyRepository = new CompanyRepository(proxySession);
 
-                session.createQuery("select p from Payment p where p.receiver.id = :userId", Payment.class)
-                        .setParameter("userId", 1)
-                        .setCacheable(true)
-//                        .setHint(QueryHints.HINT_CACHEABLE, true)
-                        .getResultList();
+            var companyReadMapper = new CompanyReadMapper();
+            var userReadMapper = new UserReadMapper(companyReadMapper);
+            var userCreateMapper = new UserCreateMapper(companyRepository);
 
-                System.out.println(sessionFactory.getStatistics().getCacheRegionStatistics("Users"));
-                session.getTransaction().commit();
-            }
+            var userRepository = new UserRepository(proxySession);
 
-            try (Session session = sessionFactory.openSession())
-            {
-                session.beginTransaction();
+            var transactionInterceptor = new TransactionInterceptor(sessionFactory);
 
-                var user2 = session.find(User.class, 1);
-                user2.getCompany().getName();
-                user2.getUserChats().size();
+            // прокси объект над UserService, чтобы динамически открывать / закрывать транзакции в его методах, помеченных @Transactional.
+            // А не прописывать эту логику в каждом методе вручную
+            UserService proxyUserService = new ByteBuddy()
+                    .subclass(UserService.class)
+                    .method(ElementMatchers.any())
+                    .intercept(MethodDelegation.to(transactionInterceptor))
+                    .make()
+                    .load(UserService.class.getClassLoader())
+                    .getLoaded()
+                    .getDeclaredConstructor(UserRepository.class, UserReadMapper.class, UserCreateMapper.class)
+                    .newInstance(userRepository, userReadMapper, userCreateMapper);
 
-                session.createQuery("select p from Payment p where p.receiver.id = :userId", Payment.class)
-                        .setParameter("userId", 1)
-                        .setCacheable(true)
-                        .getResultList();
+            proxyUserService.findById(1).ifPresent(System.out::println);
 
-                System.out.println(sessionFactory.getStatistics().getCacheRegionStatistics("Users"));
-                session.getTransaction().commit();
-            }
+            var userCreateDto = new UserCreateDTO(
+                    PersonalInfo.builder()
+                            .firstname("Liza")
+                            .lastname("Stepanova")
+//                            .birthDate(LocalDate.now())
+                            .build(),
+                    "liza3@gmail.com",
+                    Role.USER,
+                    1
+            ) ;
+            proxyUserService.create(userCreateDto);
+
+//            proxySession.getTransaction().commit();
+
         }
 
     }

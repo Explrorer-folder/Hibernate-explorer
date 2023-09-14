@@ -11,19 +11,17 @@ import org.hibernate.envers.NotAudited;
 import org.hibernate.annotations.Cache;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 @NamedEntityGraph(
-        name = "withCompanyAndPayment",
+        name = "withCompany",
         attributeNodes = {
-                @NamedAttributeNode("company"),
-                @NamedAttributeNode(value = "userChats", subgraph = "chats"),
-        },
-        subgraphs = {
-                @NamedSubgraph(name = "chats", attributeNodes = @NamedAttributeNode("chat"))
+                @NamedAttributeNode("company")
         }
 )
 @FetchProfile(name = "withCompanyAndPayment", fetchOverrides = {

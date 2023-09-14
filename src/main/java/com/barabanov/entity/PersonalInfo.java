@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
+import javax.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -27,5 +28,6 @@ public class PersonalInfo implements Serializable
 
     //@Column(name = "birth_date") это прописываем в entity, в которую встраиваем
     //@Convert(converter = BirthdayConverter.class) это прописываем в configuration
+    @NotNull
     private LocalDate birthDate;
 }
